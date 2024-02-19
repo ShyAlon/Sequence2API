@@ -1,0 +1,19 @@
+title Onboarding
+
+User -> Application: Open
+Application --> User: opened
+Application->Server: Authenticate User
+Server-->Application: OK
+
+title Login
+
+User -> Application: Open
+Application --> User: opened
+Application->Server: Verify User
+Server-->Application: OK
+
+title Shoot
+
+User -> Application: shotdown
+Application->Server: TerminateUser
+Server-->Application: OK
