@@ -17,3 +17,10 @@ title Shoot
 User -> Application: shotdown
 Application->Server: TerminateUser
 Server-->Application: OK
+
+
+title Kill
+
+User -> Application: Terminate
+Application->Server: KillYou
+Server-->Application: Dead

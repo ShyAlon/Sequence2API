@@ -15,6 +15,18 @@ def extract_api_from_sequence_diagram(line, targets):
     if title_match:
         title = title_match.group("title")
         return
+    
+    api_return_match = re.match(API_RETURN_PATTERN, line)
+    if api_return_match:
+        component = api_return_match.group("component")
+        target = api_return_match.group("target")
+        message = api_return_match.group("message")
+        arguments = api_return_match.group("arguments")  # Extract arguments if present
+        arguments = [arg.strip() for arg in arguments.split(",")] if arguments else []
+        if target not in targets:
+            targets[target] = []
+        targets[target].append([component, target, message, arguments, "return"])
+        return
 
     api_call_match = re.match(API_CALL_PATTERN, line)
     if api_call_match:
@@ -26,17 +38,7 @@ def extract_api_from_sequence_diagram(line, targets):
         if target not in targets:
             targets[target] = []
         targets[target].append([component, target, message, arguments, "call"])
-
-    api_return_match = re.match(API_RETURN_PATTERN, line)
-    if api_return_match:
-        component = api_return_match.group("component")
-        target = api_return_match.group("target")
-        message = api_return_match.group("message")
-        arguments = api_return_match.group("arguments")  # Extract arguments if present
-        arguments = [arg.strip() for arg in arguments.split(",")] if arguments else []
-        if target not in targets:
-            targets[target] = []
-        targets[target].append([component, target, message, arguments, "return"])
+        return
 
 
 def extract_api_from_sequence_diagram_file(filename):
