@@ -1,26 +1,60 @@
-title Onboarding
+title Provide Payment Details Once
 
-User -> Application: Open
-Application --> User: opened
-Application->Server: Authenticate User
-Server-->Application: OK
+Employer -> Payment UI (Login): Login with credentials
+Payment UI (Login) -> Security Token Service: Authenticate using SSO credentials
+Security Token Service -> Payment UI (Login): Return authentication token
+Payment UI (Login) -> API Gateway: Send token and request payment page
+API Gateway -> Employer (Browser): Display secure payment page
+Employer (Browser) -> API Gateway: Enter payment details
+API Gateway -> Security Token Service (Optional): Verify token (optional)
+API Gateway -> DB: Store payment details securely with token reference
+DB -> API Gateway: Confirmation of successful storage
+API Gateway -> Payment UI (Payment Details): Payment details saved successfully
 
-title Login
+title Change Credentials and OTP Details
 
-User -> Application: Open
-Application --> User: opened
-Application->Server: Verify User
-Server-->Application: OK
+Employer -> Account Management UI (Settings): Access "Change Credentials"
+Account Management UI (Settings) -> Account Management Service: Request to change credentials
+Account Management Service -> Security Token Service: Authenticate using existing credentials
+Security Token Service -> Account Management Service: Return authentication token
+Account Management UI (Settings) -> Employer: Display request confirmation
+Account Management UI (Settings) -> DB: Verify identity based on token and existing details
+DB -> Account Management Service: Identity confirmed
+Account Management Service -> Email/SMS notification service (Optional): Send OTP (if enabled)
+Email/SMS notification service -> Employer (Email/SMS): Receive OTP (Optional)
+Employer -> Account Management UI (OTP Verification): Enter OTP (Optional)
+Account Management UI (OTP Verification) -> Account Management Service: Send received OTP (Optional)
+Account Management Service -> DB: Verify OTP (Optional)
+DB -> Account Management Service: OTP valid (Optional)
+Account Management UI (Settings) -> Employer: Display "Enter new credentials" form
+Employer -> Account Management UI (Settings): Enter new credentials
+Account Management UI (Settings) -> Account Management Service: Send new credentials
+Account Management Service -> DB: Update credentials
+DB -> Account Management Service: Confirmation of successful update
+Account Management UI (Settings) -> Employer: Credentials updated successfully
+Note: Steps involving OTP are optional depending on the system configuration and whether two-factor authentication is enabled.
 
-title Shoot
+Title Suspend and Delete Account
 
-User -> Application: shotdown
-Application->Server: TerminateUser
-Server-->Application: OK
-
-
-title Kill
-
-User -> Application: Terminate
-Application->Server: KillYou
-Server-->Application: Dead
+Employer -> Account Management UI (Settings): Access "Account Status"
+Account Management UI (Settings) -> Account Management Service: Request to suspend account
+Account Management Service -> Security Token Service: Authenticate using existing credentials
+Security Token Service -> Account Management Service: Return authentication token
+Account Management UI (Settings) -> Employer: Display confirmation prompt
+Employer -> Account Management UI (Settings): Confirm suspension
+Account Management UI (Settings) -> Account Management Service: Confirm suspension request
+Account Management Service -> DB: Verify identity based on token and existing details
+DB -> Account Management Service: Identity confirmed
+Account Management Service -> DB: Update account status to "Suspended"
+DB -> Account Management Service: Confirmation of successful suspension
+Account Management UI (Settings) -> Employer: Account suspended successfully
+Employer -> Account Management UI (Settings): Access "Delete Account" (only visible if enabled)
+Account Management UI (Settings) -> Account Management Service: Request to delete account
+Account Management UI (Settings) -> Employer: Display final confirmation prompt
+Employer -> Account Management UI (Settings): Confirm deletion
+Account Management UI (Settings) -> Account Management Service: Confirm deletion request
+Account Management Service -> DB: Verify identity based on token and existing details
+DB -> Account Management Service: Identity confirmed
+Account Management Service -> DB: Permanently delete account data
+DB -> Account Management Service: Confirmation of successful deletion
+Account Management UI (Settings) -> Employer: Account deleted successfully
