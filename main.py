@@ -6,7 +6,7 @@ TITLE_PATTERN = r"^title\s+(?P<title>.*)$"
 #API_CALL_PATTERN = r"(?i)(?P<component>[\w\s\(\)]+(?<![:->]))*?->(?P<target>[\w\s\(\)]+(?<![:]))*?:(?P<message>[\w\s\(\)]+)"
 API_CALL_PATTERN = r"(?i)(?P<component>[^\s:->]+(?:\s+[^\s:->]+)*?)\s*->\s*(?P<target>[^\s:->]+(?:\s+[^\s:->]+)*?)\s*:\s*(?P<message>.*)"
 #API_RETURN_PATTERN = r"(?i)(?P<component>[\w\s\(\)]+(?<![:->]))*?-->(?P<target>[\w\s\(\)]+(?<![:]))*?:(?P<message>[\w\s\(\)]+)"
-API_RETURN_PATTERN = r"(?i)(?P<component>[^\s:->]+(?:\s+[^\s:->]+)*?)\s*->\s*(?P<target>[^\s:->]+(?:\s+[^\s:->]+)*?)\s*:\s*(?P<message>.*)"
+API_RETURN_PATTERN = r"(?i)(?P<component>[^\s:->]+(?:\s+[^\s:->]+)*?)\s*-->\s*(?P<target>[^\s:->]+(?:\s+[^\s:->]+)*?)\s*:\s*(?P<message>.*)"
 
 
 def extract_api_from_sequence_diagram(line, targets):

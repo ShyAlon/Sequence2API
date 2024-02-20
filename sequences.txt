@@ -1,60 +1,402 @@
 title Provide Payment Details Once
 
-Employer -> Payment UI (Login): Login with credentials
-Payment UI (Login) -> Security Token Service: Authenticate using SSO credentials
-Security Token Service -> Payment UI (Login): Return authentication token
-Payment UI (Login) -> API Gateway: Send token and request payment page
-API Gateway -> Employer (Browser): Display secure payment page
-Employer (Browser) -> API Gateway: Enter payment details
-API Gateway -> Security Token Service (Optional): Verify token (optional)
+Employer -> Payment UI (Login: Login with credentials
+Payment UI (Login -> Security Token Service: Authenticate using SSO credentials
+Security Token Service -> Payment UI (Login: Return authentication token
+Payment UI (Login -> API Gateway: Send token and request payment page
+API Gateway -> Employer (Browser: Display secure payment page
+Employer (Browser -> API Gateway: Enter payment details
+API Gateway -> Security Token Service (Optional: Verify token (optional)
 API Gateway -> DB: Store payment details securely with token reference
 DB -> API Gateway: Confirmation of successful storage
-API Gateway -> Payment UI (Payment Details): Payment details saved successfully
+API Gateway -> Payment UI (Payment Details: Payment details saved successfully
 
 title Change Credentials and OTP Details
 
-Employer -> Account Management UI (Settings): Access "Change Credentials"
-Account Management UI (Settings) -> Account Management Service: Request to change credentials
+Employer -> Account Management UI (Settings: Access "Change Credentials"
+Account Management UI (Settings -> Account Management Service: Request to change credentials
 Account Management Service -> Security Token Service: Authenticate using existing credentials
 Security Token Service -> Account Management Service: Return authentication token
-Account Management UI (Settings) -> Employer: Display request confirmation
-Account Management UI (Settings) -> DB: Verify identity based on token and existing details
+Account Management UI (Settings -> Employer: Display request confirmation
+Account Management UI (Settings -> DB: Verify identity based on token and existing details
 DB -> Account Management Service: Identity confirmed
-Account Management Service -> Email/SMS notification service (Optional): Send OTP (if enabled)
-Email/SMS notification service -> Employer (Email/SMS): Receive OTP (Optional)
-Employer -> Account Management UI (OTP Verification): Enter OTP (Optional)
-Account Management UI (OTP Verification) -> Account Management Service: Send received OTP (Optional)
+Account Management Service -> Email/SMS notification service (Optional: Send OTP (if enabled)
+Email/SMS notification service -> Employer (Email/SMS: Receive OTP (Optional)
+Employer -> Account Management UI (OTP Verification: Enter OTP (Optional)
+Account Management UI (OTP Verification -> Account Management Service: Send received OTP (Optional)
 Account Management Service -> DB: Verify OTP (Optional)
 DB -> Account Management Service: OTP valid (Optional)
-Account Management UI (Settings) -> Employer: Display "Enter new credentials" form
-Employer -> Account Management UI (Settings): Enter new credentials
-Account Management UI (Settings) -> Account Management Service: Send new credentials
+Account Management UI (Settings -> Employer: Display "Enter new credentials" form
+Employer -> Account Management UI (Settings: Enter new credentials
+Account Management UI (Settings -> Account Management Service: Send new credentials
 Account Management Service -> DB: Update credentials
 DB -> Account Management Service: Confirmation of successful update
-Account Management UI (Settings) -> Employer: Credentials updated successfully
+Account Management UI (Settings -> Employer: Credentials updated successfully
 Note: Steps involving OTP are optional depending on the system configuration and whether two-factor authentication is enabled.
 
 Title Suspend and Delete Account
 
-Employer -> Account Management UI (Settings): Access "Account Status"
-Account Management UI (Settings) -> Account Management Service: Request to suspend account
+Employer -> Account Management UI (Settings: Access "Account Status"
+Account Management UI (Settings -> Account Management Service: Request to suspend account
 Account Management Service -> Security Token Service: Authenticate using existing credentials
 Security Token Service -> Account Management Service: Return authentication token
-Account Management UI (Settings) -> Employer: Display confirmation prompt
-Employer -> Account Management UI (Settings): Confirm suspension
-Account Management UI (Settings) -> Account Management Service: Confirm suspension request
+Account Management UI (Settings -> Employer: Display confirmation prompt
+Employer -> Account Management UI (Settings: Confirm suspension
+Account Management UI (Settings -> Account Management Service: Confirm suspension request
 Account Management Service -> DB: Verify identity based on token and existing details
 DB -> Account Management Service: Identity confirmed
 Account Management Service -> DB: Update account status to "Suspended"
 DB -> Account Management Service: Confirmation of successful suspension
-Account Management UI (Settings) -> Employer: Account suspended successfully
-Employer -> Account Management UI (Settings): Access "Delete Account" (only visible if enabled)
-Account Management UI (Settings) -> Account Management Service: Request to delete account
-Account Management UI (Settings) -> Employer: Display final confirmation prompt
-Employer -> Account Management UI (Settings): Confirm deletion
-Account Management UI (Settings) -> Account Management Service: Confirm deletion request
+Account Management UI (Settings -> Employer: Account suspended successfully
+Employer -> Account Management UI (Settings: Access "Delete Account" (only visible if enabled)
+Account Management UI (Settings -> Account Management Service: Request to delete account
+Account Management UI (Settings -> Employer: Display final confirmation prompt
+Employer -> Account Management UI (Settings: Confirm deletion
+Account Management UI (Settings -> Account Management Service: Confirm deletion request
 Account Management Service -> DB: Verify identity based on token and existing details
 DB -> Account Management Service: Identity confirmed
 Account Management Service -> DB: Permanently delete account data
 DB -> Account Management Service: Confirmation of successful deletion
-Account Management UI (Settings) -> Employer: Account deleted successfully
+Account Management UI (Settings -> Employer: Account deleted successfully
+
+
+Employer -> Account Management UI (Login Page: Logs in with credentials.
+Account Management UI (Login Page -> Account Management Service (Authentication: Sends authentication request with credentials.
+Account Management Service (Authentication -> DB (User Verification: Verifies user credentials against stored data.
+Account Management Service (Authentication -> Account Management UI (Login Page: Returns authentication status (success/failure).
+
+Employer -> Account Management UI (Upload Employees Page: Navigates to the "Upload Employees" page.
+Employer -> Account Management UI (Upload Employees Page: Selects and uploads the employee setup file.
+Account Management UI (Upload Employees Page -> Account Management Service (File Validation: Sends the uploaded file for validation.
+Account Management Service (File Validation -> Data Validation Service (Validation: Passes the file to a dedicated service for data format and content validation.
+Data Validation Service (Validation -> Account Management Service (File Validation: Returns validation results (valid/invalid) and any identified errors.
+
+Account Management Service (File Validation -> Security Token Service (Notification: Triggers notification for potential new users (if applicable).
+Account Management Service (File Validation -> DB (Employee Data Storage: Stores validated employee data in the database.
+Account Management Service (File Validation -> Security Token Service (Token Generation: Generates tokens for new employees based on data.
+
+Account Management Service (File Validation -> Account Management UI (Upload Employees Page: Returns error message and specific validation issues.
+Account Management Service (File Validation -> DB (Token Storage: Stores employee tokens securely (if generated).
+
+Employer -> Account Management UI (Payments Page: Navigates to the "Payments" page.
+Employer -> Account Management UI (Payments Page: Selects and uploads the XYZ payment file.
+Account Management UI (Payments Page -> Account Management Service (File Validation: Sends the uploaded file for validation.
+Account Management Service (File Validation -> Data Validation Service (Validation: Passes the file to a dedicated service for data format and payment structure validation.
+Data Validation Service (Validation -> Account Management Service (File Validation: Returns validation results (valid/invalid) and any identified errors.
+
+Account Management Service (File Validation -> DB (Payment Data Storage: Stores validated payment data in the database.
+Account Management Service (File Validation -> API Gateway (Payment Processing: Sends extracted payment information.
+
+Account Management Service (File Validation -> Account Management UI (Payments Page: Returns error message and specific validation issues.
+API Gateway -> Payment Processor (Routing: Routes payment information to the appropriate processor based on file format and payment type.
+Payment Processor -> API Gateway (Status Update: Sends transaction status updates back to the API Gateway after processing each payment.
+API Gateway -> DB (Update: Updates transaction status in the database based on received updates.
+API Gateway -> Employer (Notification: Sends payment status notifications to the employer through chosen channels (email, SMS, etc.).
+
+Employer -> Login Page: Launches the Peilapay mobile app and enters login credentials.
+Login Page -> API Gateway (Authentication: Sends authentication request with credentials.
+API Gateway (Authentication -> Account Management Service (Authentication: Forwards the authentication request.
+Account Management Service (Authentication -> DB (User Verification: Verifies user credentials against stored data.
+Account Management Service (Authentication -> API Gateway (Authentication: Returns authentication status (success/failure).
+
+Login Page -> Employee Details Page: Navigates to the "Employee Details" page.
+Employee Details Page -> API Gateway (Data Retrieval: Requests employee information for the selected employee.
+API Gateway -> DB (Data Retrieval: Retrieves relevant employee data from the database.
+DB -> API Gateway (Data Transfer: Sends retrieved employee data back to the API Gateway.
+API Gateway -> Employee Details Page: Displays retrieved employee
+
+
+
+
+
+
+
+
+
+
+Story 3 (Continued: Repeat Last Month's Actions
+
+Employer -> Employee Details Page -> Repeat Actions Menu: Opens the "Repeat Actions" menu for the selected employee.
+Repeat Actions Menu -> API Gateway (Data Retrieval: Requests last month's payment information for the selected employee.
+API Gateway -> DB (Data Retrieval: Retrieves relevant payment data from the database based on employee and date information.
+DB -> API Gateway (Data Transfer: Sends retrieved payment data back to the API Gateway.
+API Gateway -> Repeat Actions Menu: Displays retrieved payment information for confirmation.
+Employer -> Repeat Actions Menu -> Confirm: Confirms repeating the actions based on displayed information.
+Repeat Actions Menu -> API Gateway (Payment Instructions: Sends payment instructions based on retrieved data.
+API Gateway -> Payment Processor (Processing: Follows Story 2 steps 5-7 for processing payments.
+Story 3 (Continued: Make and Execute Payment Changes
+
+Employee Details Page -> Edit Payment: Selects the option to edit payment information for the selected employee.
+Edit Payment Page: Allows the employer to modify desired payment details (amount, date, etc.).
+Edit Payment Page -> API Gateway (Data Update: Sends updated payment instructions for the employee.
+API Gateway -> DB (Update: Updates payment information in the database for the specified employee.
+API Gateway -> Payment Processor (Processing: Triggers payment processing similar to Story 2 steps 5-7.
+Story 5: View Payment History
+
+Employer -> Navigation Menu: Opens the navigation menu and selects "Payment History".
+Navigation Menu -> Payment History Page: Navigates to the "Payment History" page.
+Payment History Page -> API Gateway (Data Retrieval: Requests payment history data for the employer's account.
+API Gateway -> DB (Data Retrieval: Retrieves relevant payment history data from the database based on employer information.
+DB -> API Gateway (Data Transfer: Sends retrieved payment history data back to the API Gateway.
+API Gateway -> Payment History Page: Displays the payment history information in a user-friendly format.
+Story 6: Receive Payment Notifications
+
+API Gateway -> Payment Processor (Status Update: Continuously receives payment status updates from the payment processors.
+(Based on status and user preferences:
+API Gateway -> Email/SMS Service (Notification: Sends email or SMS notifications to the employer for successful/failed payments.
+API Gateway -> Push Notification: Sends push notifications to the employer's mobile app (if enabled).
+Email/SMS Service -> Employer: Delivers email or SMS notifications to the chosen communication channels.
+Push Notification: Displays push notifications on the employer's mobile device.
+Story 7: Download Transaction Spreadsheet
+
+Employer -> Payment History Page -> Download: Selects the option to download the transaction spreadsheet.
+Payment History Page -> API Gateway (Data Retrieval: Requests all transaction data for the employer's account.
+API Gateway -> DB (Data Retrieval: Retrieves and aggregates all relevant transaction data from the database.
+DB -> API Gateway (Data Transfer: Sends the aggregated transaction data to the API Gateway.
+API Gateway -> Download: Formats the data into a downloadable spreadsheet (e.g., CSV) and provides it to the mobile app.
+Download: Offers the employer the option to download or share the spreadsheet through various channels.
+
+
+
+Story 1: Employee - View Deposit Status
+
+Employee -> Mobile App (Login Page): Launches the Peilapay mobile app and logs in with credentials.
+Mobile App (Login Page) -> API Gateway (Authentication): Sends authentication request with credentials.
+API Gateway (Authentication) -> Account Management Service (Authentication): Forwards the authentication request.
+Account Management Service (Authentication) -> DB (User Verification): Verifies user credentials against stored data.
+Account Management Service (Authentication) -> API Gateway (Authentication): Returns authentication status (success/failure).
+(Upon successful login):
+Mobile App (Login Page) -> My Pay Page: Navigates to the "My Pay" page.
+Mobile App (My Pay Page) -> API Gateway (Data Retrieval): Requests employee deposit data associated with the logged-in user.
+API Gateway -> DB (Data Retrieval): Retrieves relevant deposit data for the employee from the database.
+DB -> API Gateway (Data Transfer): Sends retrieved deposit data back to the API Gateway.
+API Gateway -> Mobile App (My Pay Page): Displays the deposit information including status (pending, processed, etc.), amount, and employer details.
+Story 2: Partner - Account Setup
+
+Partner -> Peilapay Website (Signup Page): Navigates to the Peilapay website and accesses the "Signup" page.
+Partner -> Peilapay Website (Signup Page): Enters required information (name, email, business details, etc.) and chooses "Partner" account type.
+Peilapay Website (Signup Page) -> Account Management Service (Validation): Sends partner information for validation.
+Account Management Service (Validation) -> Data Validation Service (Validation): Passes the information to a dedicated service for data format and business legitimacy checks.
+Data Validation Service (Validation) -> Account Management Service (Validation): Returns validation results (valid/invalid) and any identified issues.
+(If valid):
+Account Management Service (Validation) -> DB (Account Creation): Creates a new partner account in the database.
+Account Management Service (Validation) -> Partner -> Peilapay Website (Confirmation): Redirects to a confirmation page and sends welcome email/SMS.
+(If invalid):
+Account Management Service (Validation) -> Peilapay Website (Signup Page): Returns error message and specific validation issues.
+Story 3: Partner - Change Credentials and OTP
+
+Partner -> Mobile App (Settings Page): Launches the Peilapay mobile app and logs in with credentials.
+Mobile App (Settings Page) -> Account Management Service (Authentication): Verifies user credentials.
+(Upon successful verification):
+Mobile App (Settings Page) -> Change Password/OTP Page: Navigates to the "Change Password" or "Change OTP" page.
+Partner -> Mobile App (Change Password/OTP Page): Enters current and new credentials (password or OTP).
+Mobile App (Change Password/OTP Page) -> Account Management Service (Update): Sends update request with new credentials.
+Account Management Service (Update) -> DB (Update): Updates the chosen credential (password or OTP) in the database.
+Account Management Service (Update) -> Mobile App (Change Password/OTP Page): Sends confirmation message.
+Story 4: Partner - Setup Customer Account
+
+Partner -> Mobile App (Customer Management Page): Navigates to the "Customer Management" page within the mobile app.
+Mobile App (Customer Management Page) -> Add Customer Page: Selects the "Add Customer" option.
+Mobile App (Add Customer Page) -> Partner: Prompts the partner to enter essential customer information (name, contact details, etc.).
+Mobile App (Add Customer Page) -> API Gateway (Customer Creation): Sends the gathered customer information for account creation.
+API Gateway -> Account Management Service (Validation & Creation): Performs basic data validation and creates a new customer account associated with the partner's account.
+Account Management Service (Creation) -> DB (Customer Data Storage): Stores the customer data in the database.
+API Gateway -> Mobile App (Add Customer Page): Sends confirmation message and provides customer access information (login credentials).
+Story 5: Partner - Suspend/Delete Customer Account
+
+Partner -> Mobile App (Customer Management Page): Selects the desired customer from the list.
+
+
+
+
+Story 5 (Continued): Partner - Suspend/Delete Customer Account
+
+Mobile App (Customer Management Page) -> Action Menu: Opens an action menu for the selected customer.
+Partner -> Mobile App (Action Menu): Chooses either "Suspend Account" or "Delete Account" option.
+Mobile App (Action Menu) -> API Gateway (Account Action): Sends the chosen action and customer identification details to the API Gateway.
+API Gateway -> Account Management Service (Action Processing): Validates the partner's access rights and performs the requested action:
+For "Suspend": Updates customer account status to "Suspended" in the database.
+For "Delete": Permanently removes customer data and associated transactions from the database.
+Account Management Service (Action Processing) -> API Gateway (Confirmation): Sends confirmation message and any relevant information (e.g., data retention period for deleted accounts).
+API Gateway -> Mobile App (Action Menu): Displays confirmation message to the partner.
+Story 6: Partner - White-Labeled Experience for Customers
+
+Partner -> Mobile App (Settings Page): Navigates to the "Brand Settings" page within the mobile app.
+Mobile App (Brand Settings Page) -> Partner: Offers options to customize the app experience for their customers (e.g., logo, color scheme, welcome message).
+Partner -> Mobile App (Brand Settings Page): Makes desired customization changes.
+Mobile App (Brand Settings Page) -> Partner API (Customization Update): Sends partner identifier and updated brand information to a dedicated partner API.
+Partner API (Customization Update) -> Mobile App Distribution Service: Pushes the updated brand configuration to customer apps associated with the partner.
+Mobile App Distribution Service -> Customer Mobile Apps: Applies the received brand customizations to the user interface for customers of the specific partner.
+Story 7: Partner - Customer Payment Notifications
+
+API Gateway -> Payment Processor (Status Update): Continuously receives payment status updates from the processors.
+(Based on customer preferences and partner notification settings):
+API Gateway -> Email/SMS Service (Notification): Sends email or SMS notifications to the partner for successful/failed customer payments.
+Mobile App (Push Notification): Sends push notifications to the partner's mobile app (if enabled).
+Email/SMS Service -> Partner: Delivers email or SMS notifications to the chosen communication channels.
+Mobile App (Push Notification): Displays push notifications on the partner's mobile device.
+Story 8: Partner - Download Customer Transaction Spreadsheet
+
+Partner -> Mobile App (Customer Management Page): Selects the desired customer from the list.
+Mobile App (Customer Management Page) -> Action Menu: Opens an action menu for the selected customer.
+Partner -> Mobile App (Action Menu): Selects "Download Transactions" option.
+Mobile App (Action Menu) -> API Gateway (Data Retrieval): Requests all transaction data for the selected customer.
+API Gateway -> DB (Data Retrieval): Retrieves and aggregates all relevant transaction data associated with the chosen customer.
+DB -> API Gateway (Data Transfer): Sends the aggregated transaction data back to the API Gateway.
+API Gateway -> Mobile App (Download): Formats the data into a downloadable spreadsheet (e.g., CSV) and provides it to the mobile app.
+Mobile App (Download): Offers the partner the option to download or share the spreadsheet through various channels.
+
+
+
+
+
+Story 1: Grant Administrative Privileges
+
+Administrator -> Administration UI (User Management Page): Logs in with administrator credentials and accesses the "User Management" page.
+Administration UI (User Management Page) -> API Gateway (Authentication): Verifies administrator privileges.
+(Upon successful verification):
+Administrator -> Administration UI (User Management Page): Selects the target user from the list.
+Administration UI (User Management Page) -> API Gateway (Grant Privileges): Sends request to grant administrative privileges to the selected user.
+API Gateway -> Account Management Service (Authorization): Validates administrator's permissions and performs privilege assignment.
+Account Management Service (Authorization) -> DB (Privilege Update): Updates the user's record in the database with the new "Administrator" role or specific administrative permissions.
+Account Management Service (Authorization) -> API Gateway (Confirmation): Sends confirmation message to the administrator.
+API Gateway -> Administration UI (User Management Page): Displays confirmation message to the administrator.
+Story 2: Edit and Delete Lower-Level Administrators
+
+Administrator -> Administration UI (User Management Page): Follows Story 1 steps 1-2 to access the "User Management" page and validate administrator privileges.
+Administrator -> Administration UI (User Management Page): Selects the target administrator from the list.
+Administration UI (User Management Page) -> API Gateway (Action Selection): Sends request to either edit or delete the selected administrator (based on user choice).
+API Gateway -> Account Management Service (Validation): Verifies administrator's authority to perform the chosen action and checks for potential conflicts (e.g., deleting the last administrator).
+(For Edit):
+Account Management Service (Validation) -> Administration UI (User Management Page): Sends current privilege details for the selected administrator.
+Administrator -> Administration UI (User Management Page): Modifies desired privileges.
+Administration UI (User Management Page) -> API Gateway (Privilege Update): Sends updated privilege information.
+Account Management Service (Authorization) -> DB (Privilege Update): Updates the user's record in the database with the new permissions.
+Account Management Service (Authorization) -> API Gateway (Confirmation): Sends confirmation message to the administrator.
+API Gateway -> Administration UI (User Management Page): Displays confirmation message to the administrator.
+(For Delete):
+Account Management Service (Validation) -> Administration UI (User Management Page): Displays confirmation prompt with potential consequences (e.g., data loss).
+Administrator -> Administration UI (User Management Page): Confirmsdeletion.
+Administration UI (User Management Page) -> API Gateway (Account Deletion): Sends deletion request.
+Account Management Service (Deletion) -> DB (Account Removal): Permanently deletes the user account and associated data (following data retention policies).
+Account Management Service (Deletion) -> API Gateway (Confirmation): Sends confirmation message to the administrator.
+API Gateway -> Administration UI (User Management Page): Displays confirmation message to the administrator.
+Story 3: Set Up Employers and Partners
+
+Administrator -> Administration UI (Onboarding Page): Navigates to the "Onboarding" page for creating new accounts.
+Administrator -> Administration UI (Onboarding Page): Chooses either "Employer" or "Partner" account type.
+Administration UI (Onboarding Page) -> Partner/Employer Management Service (Validation): Sends basic company information entered by the administrator.
+Partner/Employer Management Service (Validation) -> Data Validation Service (Validation): Performs business legitimacy checks.
+Data Validation Service (Validation) -> Partner/Employer Management Service (Validation): Returns validation results (valid/invalid) and any identified issues.
+(If valid):
+Partner/Employer Management Service (Validation) -> Account Management Service (Account Creation): Creates a new partner or employer account in the database.
+Account Management Service (Account Creation) -> Partner/Employer Management Service (Confirmation): Sends confirmation details (e.g., login credentials) for the new account.
+Partner/Employer Management Service (Confirmation) -> Administration UI (Onboarding Page): Displays success message and account details.
+(If invalid):
+Partner/Employer Management Service (Validation) -> Administration UI (Onboarding Page): Returns error message and specific validation issues.
+Story 4: Edit, Suspend, and Delete Employer/Partner Accounts
+
+Administrator -> Administration UI (Partner/Employer Management Page): Selects the desired partner or employer from the list.
+Administration UI (Partner/Employer Management Page) -> API Gateway (Action Selection): Sends request to either edit, suspend, or delete the selected account (based on user choice).
+API Gateway -> Account Management Service (Validation): Verifies administrator's authority and performs pre-action checks (e.g., ongoing transactions, dependent accounts).
+(For Edit):
+Account Management Service (Validation) -> Administration UI (Partner/Employer Management Page): Sends current account details for the selected partner or employer.
+Administrator -> Administration UI (Partner/Employer Management Page): Modifies desired information (e.g., company name, contact details).
+Administration UI (Partner/Employer Management Page) -> API Gateway (Account Update): Sends updated account information.
+Account Management Service (Update) -> DB (Account Update): Updates the partner/employer record in the database with the new information.
+Account Management Service (Update) -> API Gateway (Confirmation): Sends confirmation message to the administrator.
+API Gateway -> Administration UI (Partner/Employer Management Page): Displays confirmation message to the administrator.
+(For Suspend):
+Account Management Service (Validation) -> Administration UI (Partner/Employer Management Page): Displays confirmation prompt with potential consequences (e.g., suspended payments).
+Administrator -> Administration UI (Partner/Employer Management Page): Confirms suspension.
+Administration UI (Partner/Employer Management Page) -> API Gateway (Account Suspension): Sends suspension request.
+Account Management Service (Suspension) -> DB (Account Status Update): Updates the partner/employer account status to "Suspended" in the database.
+Account Management Service (Suspension) -> API Gateway (Confirmation): Sends confirmation message to the administrator.
+API Gateway -> Administration UI (Partner/Employer Management Page): Displays confirmation message to the administrator.
+(For Delete):
+Account Management Service (Validation) -> Administration UI (Partner/Employer Management Page): Displays confirmation prompt with potential consequences (e.g., data loss, dependent account issues).
+Administrator -> Administration UI (Partner/Employer Management Page): Confirms deletion.
+Administration UI (Partner/Employer Management Page) -> API Gateway (Account Deletion): Sends deletion request.
+Account Management Service (Deletion) -> DB (Account Removal): Permanently deletes the partner/employer account and associated data (following data retention policies).
+Account Management Service (Deletion) -> API Gateway (Confirmation): Sends confirmation message to the administrator.
+API Gateway -> Administration UI (Partner/Employer Management Page): Displays confirmation message to the administrator.
+Story 5: View Full System Usage Audit
+
+Administrator -> Administration UI (Audit Log Page): Navigates to the "Audit Log" page for system activity monitoring.
+Administration UI (Audit Log Page) -> API Gateway (Authentication): Verifies administrator privileges.
+(Upon successful verification):
+Administration UI (Audit Log Page) -> API Gateway (Data Retrieval): Sends request for complete audit data within a specified timeframe (optional).
+API Gateway -> Logging Service (Data Retrieval): Retrieves relevant audit log entries from the logging system based on timeframe or other filters (if provided).
+Logging Service (Data Retrieval) -> API Gateway (Data Transfer): Sends retrieved audit data back to the API Gateway.
+API Gateway -> Administration UI (Audit Log Page): Displays the fetched audit data in a user-friendly format (e.g., table, timeline).
+Each entry should show details like timestamp, user involved, action performed, affected entity (e.g., account, transaction), and outcome (success/failure).
+Story 6: Export Full System Usage Audit
+
+Administrator -> Administration UI (Audit Log Page): Follows Story 5 steps 1-2 to access the "Audit Log" page and verify privileges.
+Administrator -> Administration UI (Audit Log Page): Selects the desired export format (e.g., CSV, Excel) and timeframe (optional).
+Administration UI (Audit Log Page) -> API Gateway (Export Request): Sends request to export audit data based on chosen format and timeframe.
+API Gateway -> Logging Service (Data Retrieval & Export): Retrieves relevant audit data and converts it to the specified format.
+Logging Service (Export) -> API Gateway (Download Link): Generates a downloadable link for the exported audit data file.
+API Gateway -> Administration UI (Audit Log Page): Presents the download link to the administrator within the "Audit Log" page.
+Administrator -> Administration UI (Audit Log Page): Selects the download link to initiate the transfer of the exported audit data file.
+Story 7: Search System Logs for Specific Transaction
+
+Administrator -> Administration UI (Search Page): Navigates to the "Search" page for transaction and activity tracking.
+Administrator -> Administration UI (Search Page): Enters search criteria, including:
+Transaction ID (if known)
+User involved (if known)
+Account involved (if known)
+Timeframe (optional)
+Keyword search within transaction details (optional)
+Administration UI (Search Page) -> API Gateway (Search Request): Sends the entered search criteria to the API Gateway.
+API Gateway -> Logging Service (Log Search): Performs a comprehensive search across relevant log data based on the provided criteria.
+Logging Service (Log Search) -> API Gateway (Search Results): Returns matching log entries that meet the search criteria.
+API Gateway -> Administration UI (Search Page): Displays the retrieved log entries for the administrator to review, including details like:
+Timestamp
+User involved
+Action performed
+Affected entity (e.g., account, transaction)
+Outcome (success/failure)
+Relevant transaction details (if applicable)
+
+Story 1: Deploy System in Public Cloud
+
+TO -> Cloud Management Platform (CMP): Logs in to the chosen public cloud provider's CMP with authorized credentials.
+TO -> CMP: Selects the desired cloud service model (e.g., Infrastructure as a Service (IaaS), Platform as a Service (PaaS)).
+CMP: Presents available options based on chosen model and TO's preferences (e.g., region, resource specifications).
+TO -> CMP: Defines infrastructure configuration, including:
+Virtual machines (VMs) or containers for application components.
+Network setup (firewalls, load balancers, etc.).
+Storage resources (databases, object storage).
+CMP: Provisions and configures the chosen cloud resources based on TO's specifications.
+TO -> CMP: Deploys the Peilapay application codebase and database to the provisioned resources.
+CMP: Manages and automates infrastructure scaling and updates as needed.
+Story 2: Control System Secrets
+
+TO -> Secrets Management Service (SMS): Integrates the Peilapay system with a dedicated SMS offering secure storage and access control for sensitive data.
+TO -> SMS: Defines and stores critical secrets within the SMS, including:
+Database credentials
+API keys
+Payment processing credentials
+TO -> System Codebase: Configures the application to retrieve secrets from the SMS securely using dedicated libraries or APIs.
+System Codebase -> SMS: Requests access to specific secrets using authorized tokens or mechanisms established by the SMS.
+SMS: Grants access to requested secrets only upon proper authentication and authorization checks.
+System Codebase: Uses retrieved secrets securely within the application logic without storing them locally.
+Story 3: Receive Availability Issue Notifications
+
+Monitoring Service: Continuously monitors system health and performance metrics (e.g., CPU usage, memory, network latency).
+(Upon detecting an availability issue):
+Monitoring Service -> Alerting Service: Triggers an alert with details about the issue (type, severity, affected components).
+Alerting Service: Delivers notifications to configured channels chosen by the TO:
+Email
+SMS
+Push notifications
+Monitoring dashboard alerts
+Notifications: Contain clear information about the issue, its impact, and potential resolution steps.
+Story 4: Receive System Failure Notifications
+
+Monitoring Service: Monitors system health and critical services for failures (e.g., application crashes, service unavailability).
+(Upon detecting a system failure):
+Monitoring Service -> Alerting Service: Triggers an alert with details about the failure (type, severity, affected components).
+Alerting Service: Delivers immediate notifications to the TO using prioritized channels defined in Story 3.
+Notifications: Provide critical information about the failure, its potential impact, and initial guidance for troubleshooting and recovery.
